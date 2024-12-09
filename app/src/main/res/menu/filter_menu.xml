@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/filter_this_week"
+        android:title="Due This Week"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/filter_this_month"
+        android:title="Due This Month"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/filter_this_year"
+        android:title="Due This Year"
+        tools:ignore="HardcodedText" />
+</menu>

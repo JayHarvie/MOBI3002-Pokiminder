@@ -13,27 +13,33 @@ import com.example.pokiminder.R
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
+import android.util.Log
+import android.view.MenuItem
+import android.widget.Button
+import android.widget.PopupMenu
 
 class HomePageActivity : AppCompatActivity() {
-
     private lateinit var dropdownMenu: Spinner
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Optional: For edge-to-edge display (if needed)
         setContentView(R.layout.activity_homepage)
 
+        Log.d("HomePageActivity", "onCreate started")
+
         // Set up the layout to handle system bars (for edge-to-edge display)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        Log.d("HomePageActivity", "Layout configured")
+
         // Initialize the dropdown menu (Spinner)
         dropdownMenu = findViewById(R.id.homepage_dropdown_menu)
+
+        Log.d("HomePageActivity", "Dropdown initialized")
 
         // Set up the dropdown options
         val options = arrayOf("Completed Tasks", "Light Mode", "Dark Mode")
@@ -65,6 +71,15 @@ class HomePageActivity : AppCompatActivity() {
                 // Handle the case where nothing is selected
             }
         }
+
+        Log.d("HomePageActivity", "Dropdown item listener set")
+
+        // Set up the Filter button click listener
+        val filterButton = findViewById<Button>(R.id.homepage_filter_button)
+        filterButton.setOnClickListener {
+            // Show filter options when the button is clicked
+            showFilterOptions(filterButton)
+        }
     }
 
     private fun switchTheme(isDarkMode: Boolean) {
@@ -80,7 +95,40 @@ class HomePageActivity : AppCompatActivity() {
     }
 
     private fun showCompletedTasks() {
-        // Show completed tasks here (you might show a list or navigate to another activity)
+        // Handle showing completed tasks here
         Toast.makeText(this, "Showing Completed Tasks", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showFilterOptions(view: android.view.View) {
+        // Create a PopupMenu for the filter options
+        val popupMenu = PopupMenu(this, view)
+
+        // Inflate the menu from a resource file
+        popupMenu.menuInflater.inflate(R.menu.filter_menu, popupMenu.menu)
+
+        // Set item click listener for each menu item
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.filter_this_week -> {
+                    Toast.makeText(this, "Filtering: Due This Week", Toast.LENGTH_SHORT).show()
+                    // Add logic to filter reminders for this week
+                    true
+                }
+                R.id.filter_this_month -> {
+                    Toast.makeText(this, "Filtering: Due This Month", Toast.LENGTH_SHORT).show()
+                    // Add logic to filter reminders for this month
+                    true
+                }
+                R.id.filter_this_year -> {
+                    Toast.makeText(this, "Filtering: Due This Year", Toast.LENGTH_SHORT).show()
+                    // Add logic to filter reminders for this year
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Show the menu
+        popupMenu.show()
     }
 }
