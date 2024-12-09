@@ -44,9 +44,11 @@ class LoginActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = userDao.getUserByEmailAndPassword(email, password)
                 if (user != null) {
+                    // Pass the user ID to HomePageActivity
                     val intent = Intent(this@LoginActivity, HomePageActivity::class.java)
+                    intent.putExtra("userID", user.userId) // Pass user ID here
                     startActivity(intent)
-                    finish()
+                    finish() // Close LoginActivity after successful login
                 } else {
                     Toast.makeText(this@LoginActivity, "Invalid credentials", Toast.LENGTH_SHORT).show()
                 }

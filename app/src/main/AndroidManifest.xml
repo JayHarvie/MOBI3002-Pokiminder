@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Add the INTERNET permission -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,7 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pokiminder"
         tools:targetApi="31">
-
+        <activity
+            android:name=".screen.CreateReminderActivity"
+            android:exported="false" />
         <activity
             android:name=".screen.SignUpActivity"
             android:exported="false"
@@ -26,6 +31,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -34,6 +40,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -41,4 +48,5 @@
             android:name=".screen.HomePageActivity"
             android:exported="false" />
     </application>
+
 </manifest>

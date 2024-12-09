@@ -4,13 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.pokiminder.data.dao.ReminderDao
 import com.example.pokiminder.data.dao.UserDao
+import com.example.pokiminder.data.entity.Reminder
 import com.example.pokiminder.data.entity.User
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
+@Database(entities = [User::class, Reminder::class], version = 2, exportSchema = false)
+@TypeConverters(Converters::class) // Register the Converters
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
+    abstract fun reminderDao(): ReminderDao
 
     companion object {
         @Volatile
@@ -22,7 +27,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "pokiminder_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Handles migration by clearing old data
+                    .build()
                 INSTANCE = instance
                 instance
             }

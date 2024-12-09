@@ -1,52 +1,45 @@
 package com.example.pokiminder.screen
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.util.Log
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import android.widget.AdapterView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.pokiminder.R
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import android.util.Log
-import android.view.MenuItem
-import android.widget.Button
-import android.widget.PopupMenu
+import com.example.pokiminder.data.AppDatabase
+import com.example.pokiminder.data.entity.Reminder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomePageActivity : AppCompatActivity() {
+    private lateinit var progressBar: ProgressBar
     private lateinit var dropdownMenu: Spinner
+    private lateinit var createReminderButton: Button
+    private lateinit var reminderRecyclerView: RecyclerView
+    private lateinit var reminderAdapter: ReminderAdapter
+    private var userId: Int? = null  // Store the userId when the user logs in
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
 
-        Log.d("HomePageActivity", "onCreate started")
-
-        // Set up the layout to handle system bars (for edge-to-edge display)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        Log.d("HomePageActivity", "Layout configured")
+        // Initialize the ProgressBar
+        progressBar = findViewById(R.id.homepage_progress_bar)
 
         // Initialize the dropdown menu (Spinner)
         dropdownMenu = findViewById(R.id.homepage_dropdown_menu)
-
-        Log.d("HomePageActivity", "Dropdown initialized")
-
-        // Set up the dropdown options
-        val options = arrayOf("Completed Tasks", "Light Mode", "Dark Mode")
+        val options = arrayOf("Completed Tasks", "Light Mode", "Dark Mode", "Logout")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
         dropdownMenu.adapter = adapter
 
-        // Set the default theme based on saved preference
+        // Set the theme based on saved preference
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val darkModeEnabled = sharedPreferences.getBoolean("dark_mode", false)
         if (darkModeEnabled) {
@@ -61,9 +54,10 @@ class HomePageActivity : AppCompatActivity() {
                 parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long
             ) {
                 when (position) {
+                    0 -> showCompletedTasks() // Show Completed Tasks
                     1 -> switchTheme(false) // Light Mode
                     2 -> switchTheme(true)  // Dark Mode
-                    else -> showCompletedTasks() // Show Completed Tasks
+                    3 -> logoutUser()       // Logout
                 }
             }
 
@@ -72,21 +66,61 @@ class HomePageActivity : AppCompatActivity() {
             }
         }
 
-        Log.d("HomePageActivity", "Dropdown item listener set")
+        // Get the user ID (passed from LoginActivity)
+        userId = intent.getIntExtra("userID", -1)
+        if (userId == -1) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
+            finish() // Close the activity if user is not logged in
+            return
+        }
 
-        // Set up the Filter button click listener
-        val filterButton = findViewById<Button>(R.id.homepage_filter_button)
-        filterButton.setOnClickListener {
-            // Show filter options when the button is clicked
-            showFilterOptions(filterButton)
+        // Initialize RecyclerView for reminders
+        reminderRecyclerView = findViewById(R.id.homepage_reminder_list)
+        reminderRecyclerView.layoutManager = LinearLayoutManager(this)
+        reminderAdapter = ReminderAdapter()
+        reminderRecyclerView.adapter = reminderAdapter
+
+        // Fetch active reminders for the logged-in user
+        fetchActiveReminders()
+
+        // Set up the "Create New Reminder" button click listener
+        createReminderButton = findViewById(R.id.homepage_create_reminder_button)
+        createReminderButton.setOnClickListener {
+            val intent = Intent(this, CreateReminderActivity::class.java)
+            intent.putExtra("userID", userId)  // Pass the user ID
+            startActivity(intent)
+        }
+    }
+
+    private fun fetchActiveReminders() {
+        val db = AppDatabase.getDatabase(this)
+        val reminderDao = db.reminderDao()
+
+        // Show the progress bar before fetching data
+        progressBar.visibility = View.VISIBLE
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // Fetch reminders from the database
+                val reminders = reminderDao.getActiveRemindersForUser(userId!!)
+                withContext(Dispatchers.Main) {
+                    // Hide the progress bar after data is fetched
+                    progressBar.visibility = View.GONE
+                    reminderAdapter.submitList(reminders)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    // Hide the progress bar in case of error
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(this@HomePageActivity, "Error fetching reminders", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
     private fun switchTheme(isDarkMode: Boolean) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         sharedPreferences.edit().putBoolean("dark_mode", isDarkMode).apply()
-
-        // Switch to the selected theme
         if (isDarkMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
@@ -95,40 +129,13 @@ class HomePageActivity : AppCompatActivity() {
     }
 
     private fun showCompletedTasks() {
-        // Handle showing completed tasks here
         Toast.makeText(this, "Showing Completed Tasks", Toast.LENGTH_SHORT).show()
     }
 
-    private fun showFilterOptions(view: android.view.View) {
-        // Create a PopupMenu for the filter options
-        val popupMenu = PopupMenu(this, view)
-
-        // Inflate the menu from a resource file
-        popupMenu.menuInflater.inflate(R.menu.filter_menu, popupMenu.menu)
-
-        // Set item click listener for each menu item
-        popupMenu.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.filter_this_week -> {
-                    Toast.makeText(this, "Filtering: Due This Week", Toast.LENGTH_SHORT).show()
-                    // Add logic to filter reminders for this week
-                    true
-                }
-                R.id.filter_this_month -> {
-                    Toast.makeText(this, "Filtering: Due This Month", Toast.LENGTH_SHORT).show()
-                    // Add logic to filter reminders for this month
-                    true
-                }
-                R.id.filter_this_year -> {
-                    Toast.makeText(this, "Filtering: Due This Year", Toast.LENGTH_SHORT).show()
-                    // Add logic to filter reminders for this year
-                    true
-                }
-                else -> false
-            }
-        }
-
-        // Show the menu
-        popupMenu.show()
+    private fun logoutUser() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }
