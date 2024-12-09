@@ -22,8 +22,10 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 room-runtime = "androidx.room:room-runtime:2.6.1"
 room-compiler = "androidx.room:room-compiler:2.6.1"
+room-ktx = "androidx.room:room-ktx:2.6.1"  # Add this line for the room-ktx dependency
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version = "1.2.0" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

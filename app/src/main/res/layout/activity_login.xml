@@ -5,6 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:fitsSystemWindows="true"
     tools:context=".screen.LoginActivity">
 
     <!-- Email Input -->
@@ -14,11 +16,14 @@
         android:layout_height="wrap_content"
         android:hint="Email"
         android:inputType="textEmailAddress"
+        android:importantForAutofill="no"
+        android:autofillHints=""
+        android:imeOptions="actionNext"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="100dp"
-        android:padding="16dp"/>
+        android:padding="16dp" />
 
     <!-- Password Input -->
     <EditText
@@ -27,11 +32,14 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword"
+        android:imeOptions="actionDone"
+        android:importantForAutofill="no"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@id/login_email"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:padding="16dp"/>
+        android:padding="16dp" />
 
     <!-- Login Button -->
     <Button
@@ -43,9 +51,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:padding="16dp"/>
+        android:padding="16dp" />
 
-    <!-- Sign Up Button (Redirect to Sign-Up Screen) -->
+    <!-- Sign Up Button -->
     <Button
         android:id="@+id/sign_up_button"
         android:layout_width="0dp"
@@ -55,6 +63,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        android:padding="16dp"/>
+        android:padding="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

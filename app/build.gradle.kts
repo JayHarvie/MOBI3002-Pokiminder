@@ -44,7 +44,8 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.room.runtime)
-    implementation(libs.androidx.recyclerview) 
+    implementation(libs.room.ktx)
+    implementation(libs.androidx.recyclerview)
     kapt(libs.room.compiler)
 
     // Test dependencies
@@ -55,3 +56,4 @@ dependencies {
     // Additional libraries
     implementation(libs.androidx.preference.ktx)
 }
+

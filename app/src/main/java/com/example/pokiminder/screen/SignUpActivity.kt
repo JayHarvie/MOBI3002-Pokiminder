@@ -27,7 +27,6 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
-        // Initialize UI components
         emailEditText = findViewById(R.id.sign_up_email)
         passwordEditText = findViewById(R.id.sign_up_password)
         firstNameEditText = findViewById(R.id.sign_up_first_name)
@@ -35,7 +34,6 @@ class SignUpActivity : AppCompatActivity() {
         signUpButton = findViewById(R.id.sign_up_button)
         backToLoginButton = findViewById(R.id.back_to_login_button)
 
-        // Initialize Room Database
         val db = AppDatabase.getDatabase(this)
         userDao = db.userDao()
 
@@ -50,28 +48,31 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Check if the email already exists
             lifecycleScope.launch {
                 val existingUser = userDao.getUserByEmail(email)
                 if (existingUser != null) {
-                    Toast.makeText(this@SignUpActivity, "Email already exists. Please login.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SignUpActivity, "Email already exists.", Toast.LENGTH_SHORT).show()
                 } else {
-                    // Add new user to the database
-                    val newUser = User(email = email, password = password, firstName = firstName, lastName = lastName, modeType = 0)
+                    val newUser = User(
+                        email = email,
+                        password = password,
+                        firstName = firstName,
+                        lastName = lastName,
+                        modeType = 0
+                    )
                     userDao.insertUser(newUser)
 
-                    // Redirect to Login page after successful sign up
                     val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
                     startActivity(intent)
-                    finish() // Close the sign-up screen
+                    finish()
                 }
             }
         }
 
         backToLoginButton.setOnClickListener {
-            // Redirect to Login screen
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
     }
 }
+
