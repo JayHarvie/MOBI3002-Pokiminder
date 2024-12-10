@@ -2,7 +2,7 @@ package com.example.pokiminder.screen
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.MenuInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -26,16 +26,20 @@ class HomePageActivity : AppCompatActivity() {
     private lateinit var reminderAdapter: ReminderAdapter
     private var userId: Int? = null  // Store the userId when the user logs in
 
+    companion object {
+        const val REMINDER_REQUEST_CODE = 1
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
 
-        // Initialize the ProgressBar
+        // Initialize the ProgressBar and other views
         progressBar = findViewById(R.id.homepage_progress_bar)
 
         // Initialize the dropdown menu (Spinner)
         dropdownMenu = findViewById(R.id.homepage_dropdown_menu)
-        val options = arrayOf("Completed Tasks", "Light Mode", "Dark Mode", "Logout")
+        val options = arrayOf("Select an option", "Completed Tasks", "Light Mode", "Dark Mode", "Logout")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
         dropdownMenu.adapter = adapter
 
@@ -48,16 +52,21 @@ class HomePageActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
-        // Set item selection listener for the dropdown menu
         dropdownMenu.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long
             ) {
+                // Handle item selection
+                if (position == 0) {
+                    // Do nothing when "Select an option" is chosen
+                    return
+                }
+
                 when (position) {
-                    0 -> showCompletedTasks() // Show Completed Tasks
-                    1 -> switchTheme(false) // Light Mode
-                    2 -> switchTheme(true)  // Dark Mode
-                    3 -> logoutUser()       // Logout
+                    1 -> showCompletedTasks() // Show Completed Tasks
+                    2 -> switchTheme(false) // Light Mode
+                    3 -> switchTheme(true)  // Dark Mode
+                    4 -> logoutUser()       // Logout
                 }
             }
 
@@ -65,6 +74,7 @@ class HomePageActivity : AppCompatActivity() {
                 // Handle the case where nothing is selected
             }
         }
+
 
         // Get the user ID (passed from LoginActivity)
         userId = intent.getIntExtra("userID", -1)
@@ -77,7 +87,7 @@ class HomePageActivity : AppCompatActivity() {
         // Initialize RecyclerView for reminders
         reminderRecyclerView = findViewById(R.id.homepage_reminder_list)
         reminderRecyclerView.layoutManager = LinearLayoutManager(this)
-        reminderAdapter = ReminderAdapter()
+        reminderAdapter = ReminderAdapter { reminder, isChecked -> updateReminderStatus(reminder, isChecked) }
         reminderRecyclerView.adapter = reminderAdapter
 
         // Fetch active reminders for the logged-in user
@@ -88,9 +98,46 @@ class HomePageActivity : AppCompatActivity() {
         createReminderButton.setOnClickListener {
             val intent = Intent(this, CreateReminderActivity::class.java)
             intent.putExtra("userID", userId)  // Pass the user ID
-            startActivity(intent)
+            startActivityForResult(intent, REMINDER_REQUEST_CODE)  // Start CreateReminderActivity
+        }
+
+        // Set up the "Filter" button to show a PopupMenu
+        val filterButton: Button = findViewById(R.id.homepage_filter_button)
+        filterButton.setOnClickListener {
+            // Create a PopupMenu and associate it with the Filter button
+            val popupMenu = PopupMenu(this, filterButton)
+
+            // Inflate the menu resource (filter_menu.xml)
+            val menuInflater: MenuInflater = menuInflater
+            menuInflater.inflate(R.menu.filter_menu, popupMenu.menu)
+
+            // Set up the item click listener for the PopupMenu
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.filter_this_week -> {
+                        // Handle "Due This Week"
+                        Toast.makeText(this, "Due this Week", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.filter_this_month -> {
+                        // Handle "Due This Month"
+                        Toast.makeText(this, "Due this Month", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.filter_this_year -> {
+                        // Handle "Due This Year"
+                        Toast.makeText(this, "Due this Year", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            // Show the popup menu
+            popupMenu.show()
         }
     }
+
 
     private fun fetchActiveReminders() {
         val db = AppDatabase.getDatabase(this)
@@ -118,24 +165,57 @@ class HomePageActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchTheme(isDarkMode: Boolean) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        sharedPreferences.edit().putBoolean("dark_mode", isDarkMode).apply()
-        if (isDarkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+    private fun updateReminderStatus(reminder: Reminder, isChecked: Boolean) {
+        val db = AppDatabase.getDatabase(this)
+        val reminderDao = db.reminderDao()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                reminder.active = if (isChecked) 0 else 1 // Mark as completed if checked
+                reminderDao.updateReminder(reminder) // Update in the database
+                withContext(Dispatchers.Main) {
+                    // Optionally refresh the list to reflect changes
+                    fetchActiveReminders()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@HomePageActivity, "Error updating reminder status", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
-    private fun showCompletedTasks() {
-        Toast.makeText(this, "Showing Completed Tasks", Toast.LENGTH_SHORT).show()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REMINDER_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Refresh the reminder list when a new reminder is created
+            fetchActiveReminders()
+        }
     }
 
-    private fun logoutUser() {
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    private fun switchTheme(isDarkMode: Boolean) {
+        // Switch between Light and Dark modes
+        val editor = PreferenceManager.getDefaultSharedPreferences(this).edit()
+        editor.putBoolean("dark_mode", isDarkMode)
+        editor.apply()
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        )
+    }
+
+    private fun showCompletedTasks() {
+        // Launch the CompletedTasksActivity
+        val intent = Intent(this, CompletedTasksActivity::class.java)
+        intent.putExtra("userID", userId)  // Pass the user ID
         startActivity(intent)
-        finish()
+    }
+
+
+
+    private fun logoutUser() {
+        // Handle logout
+        Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show()
     }
 }
+

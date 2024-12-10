@@ -18,6 +18,6 @@ data class Reminder(
     val numOfReminders: Int,
     val pokemonName: String,
     val pokemonSprite: String,
-    val active: Int // true for active reminders, false for completed
+    var active: Int // true for active reminders, false for completed
 )
 

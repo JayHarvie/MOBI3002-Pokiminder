@@ -55,17 +55,22 @@
         tools:ignore="HardcodedText" />
 
     <!-- Active Reminders List (RecyclerView, Centered) -->
+    <!-- Centers vertically within the available space -->
+
+    <!-- Filter Button (Bottom Left) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/homepage_reminder_list"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/homepage_current_reminders_label"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="90dp"
         app:layout_constraintBottom_toTopOf="@id/homepage_filter_button"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/homepage_current_reminders_label"
+        app:layout_constraintVertical_bias="0.0" />
 
-    <!-- Filter Button (Bottom Left) -->
     <Button
         android:id="@+id/homepage_filter_button"
         android:layout_width="wrap_content"

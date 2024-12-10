@@ -6,7 +6,6 @@
         <variable
             name="reminder"
             type="com.example.pokiminder.data.entity.Reminder" />
-
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,10 +19,21 @@
             android:layout_height="wrap_content"
             android:text="@{reminder.title}"
             android:textSize="16sp"
+            android:gravity="center"
             android:layout_marginTop="8dp"
             android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- CheckBox to mark reminder as completed -->
+        <CheckBox
+            android:id="@+id/checkboxComplete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:checked="@{reminder.active == 0}" /> <!-- Mark as checked if reminder is completed -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

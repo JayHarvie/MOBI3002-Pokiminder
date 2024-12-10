@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Add the INTERNET permission -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -16,16 +15,9 @@
         android:theme="@style/Theme.Pokiminder"
         tools:targetApi="31">
         <activity
-            android:name=".screen.CreateReminderActivity"
+            android:name=".screen.CompletedTasksActivity"
             android:exported="false" />
-        <activity
-            android:name=".screen.SignUpActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".screen.LoginActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- SplashActivity: App's entry point -->
         <activity
             android:name=".screen.SplashActivity"
             android:exported="true">
@@ -34,7 +26,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> <!-- MainActivity: Another launcher activity, should not be needed if SplashActivity is the main one -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -43,9 +35,20 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> <!-- SignUpActivity: Registration screen -->
+        <activity
+            android:name=".screen.SignUpActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" /> <!-- LoginActivity: Login screen -->
+        <activity
+            android:name=".screen.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" /> <!-- HomePageActivity: Main home page of the app, where reminders are displayed -->
         <activity
             android:name=".screen.HomePageActivity"
+            android:exported="false" /> <!-- CreateReminderActivity: Screen to create new reminders -->
+        <activity
+            android:name=".screen.CreateReminderActivity"
             android:exported="false" />
     </application>
 

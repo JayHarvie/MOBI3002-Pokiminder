@@ -1,6 +1,7 @@
 package com.example.pokiminder.screen
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -88,8 +89,6 @@ class CreateReminderActivity : AppCompatActivity() {
             val pokemonId = Random.nextInt(1, 152) // Random number between 1 and 151
             val pokemon = fetchPokemonData(pokemonId)
 
-            // Use userId passed from the previous activity
-
             val reminder = Reminder(
                 userId = userId,
                 dueDate = selectedDate!!,
@@ -107,7 +106,11 @@ class CreateReminderActivity : AppCompatActivity() {
 
             runOnUiThread {
                 Toast.makeText(this@CreateReminderActivity, "Reminder created!", Toast.LENGTH_SHORT).show()
-                finish() // Close the activity
+
+                // Return to the homepage with a signal to refresh the list
+                val resultIntent = Intent()
+                setResult(RESULT_OK, resultIntent)  // Set result as OK
+                finish()  // Close the current activity
             }
         }
     }
