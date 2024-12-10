@@ -277,7 +277,6 @@ class HomePageActivity : AppCompatActivity() {
         // Clear user session data
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val editor = sharedPreferences.edit()
-        editor.clear() // Clears all saved preferences (optional: adjust if you want to keep some preferences)
         editor.apply()
 
         // Redirect to LoginActivity
