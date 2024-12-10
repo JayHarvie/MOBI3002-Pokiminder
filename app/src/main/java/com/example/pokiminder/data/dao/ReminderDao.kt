@@ -32,7 +32,7 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders WHERE userID = :userId AND active = 1")
     suspend fun getActiveRemindersForUser(userId: Int): List<Reminder>
 
-    @Query("SELECT * FROM reminders WHERE userID = :userId AND active = 0")
+    @Query("SELECT * FROM reminders WHERE userId = :userId AND active = 0")
     suspend fun getCompletedRemindersForUser(userId: Int): List<Reminder>
 
     @Query("SELECT pokemonName, pokemonSprite FROM reminders WHERE userId = :userId")

@@ -23,7 +23,6 @@
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#FF0000" /> <!-- Red background for debugging -->
 </androidx.constraintlayout.widget.ConstraintLayout>

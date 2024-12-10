@@ -23,6 +23,6 @@ class MainActivity : AppCompatActivity() {
 
             // Finish MainActivity so user cannot go back to it
             finish()
-        }, 5000) // Delay in milliseconds (3000ms = 3 seconds)
+        }, 3000) // Delay in milliseconds (3000ms = 3 seconds)
     }
 }

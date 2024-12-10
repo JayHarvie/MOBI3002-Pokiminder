@@ -14,41 +14,41 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pokiminder"
         tools:targetApi="31">
-        <activity
-            android:name=".screen.CompletedTasksActivity"
-            android:exported="false" />
+
         <!-- SplashActivity: App's entry point -->
         <activity
             android:name=".screen.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- MainActivity: Another launcher activity, should not be needed if SplashActivity is the main one -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        </activity>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> <!-- SignUpActivity: Registration screen -->
+        <!-- Remove MainActivity since it's not used as an entry point anymore -->
+        <!-- MainActivity is not necessary anymore -->
+
+        <!-- Other Activities -->
         <activity
             android:name=".screen.SignUpActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" /> <!-- LoginActivity: Login screen -->
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".screen.LoginActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" /> <!-- HomePageActivity: Main home page of the app, where reminders are displayed -->
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".screen.HomePageActivity"
-            android:exported="false" /> <!-- CreateReminderActivity: Screen to create new reminders -->
+            android:exported="false" />
+
         <activity
             android:name=".screen.CreateReminderActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".screen.CompletedTasksActivity"
             android:exported="false" />
     </application>
 
