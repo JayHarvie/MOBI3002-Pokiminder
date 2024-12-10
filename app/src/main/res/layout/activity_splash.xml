@@ -7,16 +7,81 @@
     android:layout_height="match_parent"
     tools:context=".screen.SplashActivity">
 
-    <!-- App Logo ImageView -->
+    <!-- Fire ImageView (Above the logo) -->
+
+    <!-- Water ImageView (Above the logo) -->
+
+    <!-- Grass ImageView (Below the logo) -->
+
+    <ImageView
+        android:id="@+id/fire_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="Fire Icon"
+        android:src="@drawable/fire"
+        app:layout_constraintBottom_toTopOf="@id/splash_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.107"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/water_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="Water Icon"
+        android:src="@drawable/water"
+        app:layout_constraintBottom_toTopOf="@id/splash_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.873"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.78"
+        tools:ignore="MissingConstraints" />
+
+    <!-- App Logo ImageView (Centered) -->
+
+    <!-- Text "Pokiminder" at the center -->
+
+    <ImageView
+        android:id="@+id/grass_image"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="Grass Icon"
+        android:src="@drawable/grass"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.478"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/splash_logo"
+        tools:ignore="MissingConstraints" />
+
     <ImageView
         android:id="@+id/splash_logo"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_centerInParent="true"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:contentDescription="@string/app_name"
         android:src="@drawable/pokeball"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="105dp"
-        tools:layout_editor_absoluteY="235dp" />
+        app:layout_constraintBottom_toTopOf="@id/grass_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fire_image"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/center_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pokiminder"
+        android:textColor="@android:color/black"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.646"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
