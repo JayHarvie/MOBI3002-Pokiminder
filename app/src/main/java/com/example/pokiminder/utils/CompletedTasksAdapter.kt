@@ -1,4 +1,4 @@
-package com.example.pokiminder.screen
+package com.example.pokiminder.utils
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

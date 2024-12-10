@@ -1,4 +1,4 @@
-package com.example.pokiminder.screen
+package com.example.pokiminder.utils
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,9 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokiminder.data.entity.Reminder
 import com.example.pokiminder.databinding.ItemReminderBinding
-import android.util.Log
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 
 // Adapter to handle list of reminders
