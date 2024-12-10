@@ -17,6 +17,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import android.util.Log
+import com.example.pokiminder.data.entity.scheduleNotifications
 
 class CreateReminderActivity : AppCompatActivity() {
 
@@ -104,7 +105,11 @@ class CreateReminderActivity : AppCompatActivity() {
             val database = AppDatabase.getDatabase(applicationContext)
             database.reminderDao().insertReminder(reminder)
 
+            // Schedule notifications based on the reminder
             runOnUiThread {
+                // Pass the correct Context here (applicationContext)
+                reminder.scheduleNotifications(applicationContext)
+
                 Toast.makeText(this@CreateReminderActivity, "Reminder created!", Toast.LENGTH_SHORT).show()
 
                 // Return to the homepage with a signal to refresh the list
@@ -114,6 +119,7 @@ class CreateReminderActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun fetchPokemonData(pokemonId: Int): Pair<String, String> {
         val url = "https://pokeapi.co/api/v2/pokemon-form/$pokemonId/"

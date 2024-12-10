@@ -274,8 +274,23 @@ class HomePageActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        // Handle logout
-        Toast.makeText(this, "Logging out...", Toast.LENGTH_SHORT).show()
+        // Clear user session data
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val editor = sharedPreferences.edit()
+        editor.clear() // Clears all saved preferences (optional: adjust if you want to keep some preferences)
+        editor.apply()
+
+        // Redirect to LoginActivity
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clear the activity stack
+        startActivity(intent)
+
+        // Close this activity
+        finish()
+
+        // Show a confirmation Toast (optional)
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
     }
+
 }
 
