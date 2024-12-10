@@ -14,33 +14,25 @@ import com.example.pokiminder.data.entity.Reminder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.util.Log
 
 class CompletedTasksActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var completedTasksRecyclerView: RecyclerView
     private lateinit var completedTasksAdapter: CompletedTasksAdapter
-    private var userId: Int = 0  // Store the userId when the user logs in
+    private var userId: Int? = null  // Store the userId when the user logs in
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_completed_tasks)
 
-        Log.d("CompletedTasks", "onCreate called")
-
-        // Initialize views
         progressBar = findViewById(R.id.progress_bar_completed_tasks)
         completedTasksRecyclerView = findViewById(R.id.recycler_view_completed_tasks)
         completedTasksRecyclerView.layoutManager = GridLayoutManager(this, 2) // Display in a 2-column grid
         completedTasksAdapter = CompletedTasksAdapter()
         completedTasksRecyclerView.adapter = completedTasksAdapter
 
-        Log.d("CompletedTasks", "RecyclerView setup complete with GridLayoutManager")
-
         // Get the user ID (passed from HomePageActivity)
         userId = intent.getIntExtra("userID", -1)
-        Log.d("CompletedTasks", "User ID: $userId")
-
         if (userId == -1) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
             finish() // Close the activity if user is not logged in
@@ -55,8 +47,6 @@ class CompletedTasksActivity : AppCompatActivity() {
         val db = AppDatabase.getDatabase(this)
         val reminderDao = db.reminderDao()
 
-        Log.d("CompletedTasks", "Fetching completed reminders for user ID: $userId")
-
         // Show the progress bar before fetching data
         progressBar.visibility = View.VISIBLE
 
@@ -65,18 +55,8 @@ class CompletedTasksActivity : AppCompatActivity() {
                 // Fetch completed reminders from the database
                 val reminders = reminderDao.getCompletedRemindersForUser(userId!!)
                 withContext(Dispatchers.Main) {
-                    // Log the number of completed reminders
-                    Log.d("CompletedTasks", "Fetched ${reminders.size} completed reminders.")
-
                     // Hide the progress bar after data is fetched
                     progressBar.visibility = View.GONE
-
-                    // Check if the list is empty
-                    if (reminders.isEmpty()) {
-                        Log.d("CompletedTasks", "No completed reminders found.")
-                    }
-
-                    // Submit the fetched list to the adapter
                     completedTasksAdapter.submitList(reminders)
                 }
             } catch (e: Exception) {
@@ -84,10 +64,8 @@ class CompletedTasksActivity : AppCompatActivity() {
                     // Hide the progress bar in case of error
                     progressBar.visibility = View.GONE
                     Toast.makeText(this@CompletedTasksActivity, "Error fetching completed reminders", Toast.LENGTH_SHORT).show()
-                    Log.e("CompletedTasks", "Error fetching completed reminders", e)
                 }
             }
         }
-
     }
 }
