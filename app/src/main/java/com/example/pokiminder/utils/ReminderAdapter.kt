@@ -8,14 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokiminder.data.entity.Reminder
 import com.example.pokiminder.databinding.ItemReminderBinding
 
-
 // Adapter to handle list of reminders
-class ReminderAdapter(private val onCheckboxChanged: (Reminder, Boolean) -> Unit) :
-    ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>(ReminderDiffCallback()) {
+class ReminderAdapter(
+    private val onCheckboxChanged: (Reminder, Boolean) -> Unit,
+    private val onReminderClicked: (Reminder) -> Unit
+) : ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>(ReminderDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
         val binding = ItemReminderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ReminderViewHolder(binding, onCheckboxChanged) // Pass listener to the ViewHolder
+        return ReminderViewHolder(binding, onCheckboxChanged, onReminderClicked)
     }
 
     override fun onBindViewHolder(holder: ReminderViewHolder, position: Int) {
@@ -26,7 +27,8 @@ class ReminderAdapter(private val onCheckboxChanged: (Reminder, Boolean) -> Unit
     // ViewHolder for individual reminder items
     class ReminderViewHolder(
         private val binding: ItemReminderBinding,
-        private val onCheckboxChanged: (Reminder, Boolean) -> Unit // Receive listener here
+        private val onCheckboxChanged: (Reminder, Boolean) -> Unit,
+        private val onReminderClicked: (Reminder) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -34,8 +36,15 @@ class ReminderAdapter(private val onCheckboxChanged: (Reminder, Boolean) -> Unit
             binding.checkboxComplete.setOnCheckedChangeListener { _, isChecked ->
                 val reminder = binding.reminder
                 reminder?.let {
-                    // Trigger the callback when the checkbox is checked/unchecked
-                    onCheckboxChanged(it, isChecked)
+                    onCheckboxChanged(it, isChecked) // Trigger the callback for checkbox changes
+                }
+            }
+
+            // Set up the listener for the title click
+            binding.reminderTitle.setOnClickListener {
+                val reminder = binding.reminder
+                reminder?.let {
+                    onReminderClicked(it) // Trigger the callback for title clicks
                 }
             }
         }
@@ -59,9 +68,3 @@ class ReminderDiffCallback : DiffUtil.ItemCallback<Reminder>() {
         return oldItem == newItem
     }
 }
-
-
-
-
-
-

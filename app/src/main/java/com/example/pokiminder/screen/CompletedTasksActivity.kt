@@ -1,6 +1,8 @@
 package com.example.pokiminder.screen
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -24,6 +26,14 @@ class CompletedTasksActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_completed_tasks)
+
+        // Set up the toolbar
+        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar_completed_tasks)
+        setSupportActionBar(toolbar)
+
+        // Enable the back button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Completed Reminders"
 
         progressBar = findViewById(R.id.progress_bar_completed_tasks)
         completedTasksRecyclerView = findViewById(R.id.recycler_view_completed_tasks)
@@ -66,6 +76,19 @@ class CompletedTasksActivity : AppCompatActivity() {
                     Toast.makeText(this@CompletedTasksActivity, "Error fetching completed reminders", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+    // Handle the back button press
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
+            // Navigate back to HomePageActivity
+            val intent = Intent(this, HomePageActivity::class.java)
+            intent.putExtra("userID", userId)
+            startActivity(intent)
+            finish()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
         }
     }
 }

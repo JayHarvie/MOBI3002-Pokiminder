@@ -14,39 +14,35 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pokiminder"
         tools:targetApi="31">
-
+        <activity
+            android:name=".screen.ReminderDetailActivity"
+            android:exported="false" />
         <!-- SplashActivity: App's entry point -->
         <activity
             android:name=".screen.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Remove MainActivity since it's not used as an entry point anymore -->
+        </activity> <!-- Remove MainActivity since it's not used as an entry point anymore -->
         <!-- MainActivity is not necessary anymore -->
-
         <!-- Other Activities -->
         <activity
             android:name=".screen.SignUpActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".screen.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".screen.HomePageActivity"
             android:exported="false" />
-
         <activity
             android:name=".screen.CreateReminderActivity"
             android:exported="false" />
-
         <activity
             android:name=".screen.CompletedTasksActivity"
             android:exported="false" />

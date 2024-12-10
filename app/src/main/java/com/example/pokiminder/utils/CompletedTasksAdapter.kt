@@ -1,6 +1,7 @@
 package com.example.pokiminder.utils
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.pokiminder.R
 import com.example.pokiminder.data.entity.Reminder
 import com.example.pokiminder.databinding.ItemCompletedReminderBinding
+import com.example.pokiminder.screen.ReminderDetailActivity
 
 class CompletedTasksAdapter : RecyclerView.Adapter<CompletedTasksAdapter.CompletedTasksViewHolder>() {
 
@@ -36,12 +38,27 @@ class CompletedTasksAdapter : RecyclerView.Adapter<CompletedTasksAdapter.Complet
 
         fun bind(reminder: Reminder) {
             binding.reminder = reminder
-            // Load the Pokémon sprite image using Glide from the URL stored in pokemonSprite
+
+            // Load the Pokémon sprite image
             Glide.with(binding.pokemonImage.context)
-                .load(reminder.pokemonSprite)  // pokemonSprite is the URL of the image
-                .placeholder(R.drawable.pokemon_default)  // Placeholder while the image loads
-                .error(R.drawable.pokemon_default)  // Fallback image in case of an error
+                .load(reminder.pokemonSprite)
+                .placeholder(R.drawable.pokemon_default)
+                .error(R.drawable.pokemon_default)
                 .into(binding.pokemonImage)
+
+            // Set click listener
+            binding.root.setOnClickListener {
+                val context = binding.root.context
+                val intent = Intent(context, ReminderDetailActivity::class.java).apply {
+                    putExtra("reminderId", reminder.reminderID)
+                    putExtra("title", reminder.title)
+                    putExtra("dateCompleted", reminder.dueDate.toString()) // Convert Date to String
+                    putExtra("notes", reminder.notes)
+                    putExtra("pokemonSprite", reminder.pokemonSprite)
+                }
+                context.startActivity(intent)
+            }
+
             binding.executePendingBindings()
         }
     }

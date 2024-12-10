@@ -1,10 +1,13 @@
 package com.example.pokiminder.screen
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuInflater
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
@@ -15,9 +18,16 @@ import com.example.pokiminder.R
 import com.example.pokiminder.data.AppDatabase
 import com.example.pokiminder.data.entity.Reminder
 import com.example.pokiminder.utils.ReminderAdapter
+import com.example.pokiminder.utils.getStartAndEndOfMonth
+import com.example.pokiminder.utils.getStartAndEndOfWeek
+import com.example.pokiminder.utils.getStartAndEndOfYear
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class HomePageActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
@@ -31,6 +41,7 @@ class HomePageActivity : AppCompatActivity() {
         const val REMINDER_REQUEST_CODE = 1
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
@@ -88,7 +99,10 @@ class HomePageActivity : AppCompatActivity() {
         // Initialize RecyclerView for reminders
         reminderRecyclerView = findViewById(R.id.homepage_reminder_list)
         reminderRecyclerView.layoutManager = LinearLayoutManager(this)
-        reminderAdapter = ReminderAdapter { reminder, isChecked -> updateReminderStatus(reminder, isChecked) }
+        reminderAdapter = ReminderAdapter(
+            onCheckboxChanged = { reminder, isChecked -> updateReminderStatus(reminder, isChecked) },
+            onReminderClicked = { reminder -> openReminderDetail(reminder) }
+        )
         reminderRecyclerView.adapter = reminderAdapter
 
         // Fetch active reminders for the logged-in user
@@ -116,49 +130,78 @@ class HomePageActivity : AppCompatActivity() {
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.filter_this_week -> {
-                        // Handle "Due This Week"
+                        fetchActiveReminders("this_week")
                         Toast.makeText(this, "Due this Week", Toast.LENGTH_SHORT).show()
                         true
                     }
                     R.id.filter_this_month -> {
-                        // Handle "Due This Month"
+                        fetchActiveReminders("this_month")
                         Toast.makeText(this, "Due this Month", Toast.LENGTH_SHORT).show()
                         true
                     }
                     R.id.filter_this_year -> {
-                        // Handle "Due This Year"
+                        fetchActiveReminders("this_year")
                         Toast.makeText(this, "Due this Year", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                    R.id.filter_remove -> {
+                        fetchActiveReminders(null) // Reset to show all active reminders
+                        Toast.makeText(this, "Filter removed", Toast.LENGTH_SHORT).show()
                         true
                     }
                     else -> false
                 }
             }
-
             // Show the popup menu
             popupMenu.show()
         }
+
     }
 
-
-    private fun fetchActiveReminders() {
+    // Fetch reminders for the month
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun fetchActiveReminders(filter: String? = null) {
         val db = AppDatabase.getDatabase(this)
         val reminderDao = db.reminderDao()
 
-        // Show the progress bar before fetching data
         progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Fetch reminders from the database
-                val reminders = reminderDao.getActiveRemindersForUser(userId!!)
+                val reminders = when (filter) {
+                    "this_week" -> {
+                        val (startOfWeek, endOfWeek) = getStartAndEndOfWeek()
+                        reminderDao.getRemindersDueInRange(
+                            userId!!,
+                            Date.from(startOfWeek.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+                            Date.from(endOfWeek.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                        )
+                    }
+                    "this_month" -> {
+                        val (startOfMonth, endOfMonth) = getStartAndEndOfMonth()
+                        reminderDao.getRemindersDueInRange(
+                            userId!!,
+                            Date.from(startOfMonth.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+                            Date.from(endOfMonth.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                        )
+                    }
+                    "this_year" -> {
+                        val (startOfYear, endOfYear) = getStartAndEndOfYear()
+                        reminderDao.getRemindersDueInRange(
+                            userId!!,
+                            Date.from(startOfYear.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()),
+                            Date.from(endOfYear.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
+                        )
+                    }
+                    else -> reminderDao.getActiveRemindersForUser(userId!!)
+                }
+
                 withContext(Dispatchers.Main) {
-                    // Hide the progress bar after data is fetched
                     progressBar.visibility = View.GONE
                     reminderAdapter.submitList(reminders)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    // Hide the progress bar in case of error
                     progressBar.visibility = View.GONE
                     Toast.makeText(this@HomePageActivity, "Error fetching reminders", Toast.LENGTH_SHORT).show()
                 }
@@ -166,6 +209,8 @@ class HomePageActivity : AppCompatActivity() {
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun updateReminderStatus(reminder: Reminder, isChecked: Boolean) {
         val db = AppDatabase.getDatabase(this)
         val reminderDao = db.reminderDao()
@@ -186,15 +231,30 @@ class HomePageActivity : AppCompatActivity() {
         }
     }
 
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    private fun openReminderDetail(reminder: Reminder) {
+        // Log the dueDate to verify it's passed correctly
+        Log.d("HomePageActivity", "Opening reminder detail for reminder with title: ${reminder.title} and dueDate: ${reminder.dueDate}")
+
+        val intent = Intent(this, ReminderDetailActivity::class.java)
+        intent.putExtra("reminderId", reminder.reminderID)
+        intent.putExtra("title", reminder.title)
+        intent.putExtra("dateCompleted", reminder.dueDate.toString())
+        intent.putExtra("notes", reminder.notes)
+        intent.putExtra("pokemonSprite", reminder.pokemonSprite)
+        startActivity(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REMINDER_REQUEST_CODE && resultCode == RESULT_OK) {
-            // Refresh the reminder list when a new reminder is created
+            // Refresh the reminder list when a reminder is created or deleted
             fetchActiveReminders()
         }
     }
+
 
     private fun switchTheme(isDarkMode: Boolean) {
         // Switch between Light and Dark modes
@@ -212,9 +272,6 @@ class HomePageActivity : AppCompatActivity() {
         intent.putExtra("userID", userId)  // Pass the user ID
         startActivity(intent)
     }
-
-
-
 
     private fun logoutUser() {
         // Handle logout

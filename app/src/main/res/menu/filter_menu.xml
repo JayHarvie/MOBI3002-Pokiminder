@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/filter_this_week"
         android:title="Due This Week"
@@ -13,4 +14,11 @@
         android:id="@+id/filter_this_year"
         android:title="Due This Year"
         tools:ignore="HardcodedText" />
+
+    <item
+        android:id="@+id/filter_remove"
+        android:title="Remove Filter"
+        android:orderInCategory="4"
+        app:showAsAction="never" />
+
 </menu>
